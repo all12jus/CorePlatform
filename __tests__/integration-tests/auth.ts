@@ -162,5 +162,44 @@ describe('Environment', () => {
     });
 
     // tests for login
+    it('should return 400 Bad Request', async () => {
+        const res = await request(app).post('/api/auth/login').send({
+            username: 'test',
+        });
+        checkEndpoint(res, false);
+        expect(res.status).toBe(StatusCodes.BAD_REQUEST);
+        expect(res.body.success).toBe(false);
+    });
+
+    it('should return 400 Bad Request', async () => {
+        const res = await request(app).post('/api/auth/login').send({
+            password: 'test',
+        });
+        checkEndpoint(res, false);
+        expect(res.status).toBe(StatusCodes.BAD_REQUEST);
+        expect(res.body.success).toBe(false);
+    });
+
+    // wrong password
+    it('should return 401 Bad Request', async () => {
+        const res = await request(app).post('/api/auth/login').send({
+            username: 'test',
+            password: 'test1',
+        });
+        checkEndpoint(res, false);
+        expect(res.status).toBe(StatusCodes.UNAUTHORIZED);
+        expect(res.body.success).toBe(false);
+    });
+
+    // login success
+    it('should return 200 OK', async () => {
+        const res = await request(app).post('/api/auth/login').send({
+            username: 'test',
+            password: 'test',
+        });
+        checkEndpoint(res, true);
+        expect(res.status).toBe(StatusCodes.OK);
+        expect(res.body.success).toBe(true);
+    });
 
 });

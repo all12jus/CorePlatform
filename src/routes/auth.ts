@@ -73,4 +73,63 @@ router.post('/register', (req: express.Request, res: express.Response) => {
 
 });
 
+// POST: /api/auth/login route
+router.post('/login', (req: express.Request, res: express.Response) => {
+
+    //
+    // check if all fields are present
+    //
+    let requiredFields = ['username', 'password'];
+    let missingFields = [];
+    for (let i = 0; i < requiredFields.length; i++) {
+        if (!req.body[requiredFields[i]]) {
+            missingFields.push(requiredFields[i]);
+        }
+    }
+    if (missingFields.length > 0) {
+        return res.status(400).send({
+            success: false,
+            error: `Missing fields: ${missingFields.join(', ')}`,
+        });
+    }
+
+    //
+    // check if user exists
+    //
+    User.findOne({username: req.body.username}, (err, user) => {
+        if (err) {
+            return res.status(500).send({
+                success: false,
+                error: err.message || 'Some error occurred while retrieving users.',
+            });
+        }
+        if (!user) {
+            return res.status(404).send({
+                success: false,
+                error: 'User not found',
+            });
+        }
+
+        //
+        // check if password is correct
+        //
+        if (user.password !== req.body.password) {
+            return res.status(401).send({
+                success: false,
+                error: 'Incorrect password',
+            });
+        }
+
+        //
+        // login success - return user
+        //
+        res.status(200).send({
+            success: true,
+            data: {
+                user,
+                // token: '1234567890',
+            },
+        });
+    });
+});
 export default router;
