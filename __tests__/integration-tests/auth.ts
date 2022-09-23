@@ -37,16 +37,23 @@ describe('Environment', () => {
         const url = `mongodb://127.0.0.1/core_platform`; // core_platform
         await mongoose.connect(url, { useNewUrlParser: true } as ConnectOptions)
         app = App;
-    })
 
-    beforeEach(async () => {
         const collections = await mongoose.connection.db.collections();
 
         for (let collection of collections) {
             // note: collection.remove() has been depreceated.
             await collection.deleteMany({});
         }
-    });
+    })
+
+    // beforeEach(async () => {
+    //     const collections = await mongoose.connection.db.collections();
+    //
+    //     for (let collection of collections) {
+    //         // note: collection.remove() has been depreceated.
+    //         await collection.deleteMany({});
+    //     }
+    // });
 
     afterAll((done) => {
         // Closing the DB connection allows Jest to exit successfully.
@@ -150,7 +157,7 @@ describe('Environment', () => {
             roles: [],
         });
 
-        console.log(res.body);
+        // console.log(res.body);
         // checkEndpoint(res);
         expect(res.status).toBe(StatusCodes.CREATED);
         expect(res.body).toHaveProperty('success');

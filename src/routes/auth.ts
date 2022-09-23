@@ -39,7 +39,7 @@ router.post('/register', (req: express.Request, res: express.Response) => {
             });
         }
         if (user) {
-            return res.status(400).send({
+            return res.status(409).send({
                 success: false,
                 message: 'Username is already taken',
             });
@@ -63,7 +63,7 @@ router.post('/register', (req: express.Request, res: express.Response) => {
                     message: err.message || 'Some error occurred while creating the User.',
                 });
             }
-            res.status(200).send({
+            res.status(201).send({
                 success: true,
                 message: 'OK',
             });
