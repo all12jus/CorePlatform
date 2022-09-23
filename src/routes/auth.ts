@@ -25,7 +25,7 @@ router.post('/register', (req: express.Request, res: express.Response) => {
     if (missingFields.length > 0) {
         return res.status(400).send({
             success: false,
-            message: `Missing fields: ${missingFields.join(', ')}`,
+            error: `Missing fields: ${missingFields.join(', ')}`,
         });
     }
 
@@ -35,13 +35,13 @@ router.post('/register', (req: express.Request, res: express.Response) => {
         if (err) {
             return res.status(500).send({
                 success: false,
-                message: err.message || 'Some error occurred while retrieving users.',
+                error: err.message || 'Some error occurred while retrieving users.',
             });
         }
         if (user) {
             return res.status(409).send({
                 success: false,
-                message: 'Username is already taken',
+                error: 'Username is already taken',
             });
         }
 
@@ -60,12 +60,12 @@ router.post('/register', (req: express.Request, res: express.Response) => {
             if (err) {
                 return res.status(500).send({
                     success: false,
-                    message: err.message || 'Some error occurred while creating the User.',
+                    error: err.message || 'Some error occurred while creating the User.',
                 });
             }
             res.status(201).send({
                 success: true,
-                message: 'OK',
+                data: newUser,
             });
         });
 

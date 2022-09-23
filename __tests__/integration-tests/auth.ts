@@ -12,19 +12,15 @@ import {ConnectOptions} from "mongoose";
 
 
 // function to check endpoint is correctly structured
-function checkEndpoint(res: request.Response) {
+function checkEndpoint(res: request.Response, success: boolean) {
     expect(res.type).toBe('application/json');
-
-    if (res.status === StatusCodes.OK) {
-        expect(res.status).toBe(StatusCodes.OK);
-        expect(res.body).toHaveProperty('success');
-        expect(res.body).toHaveProperty('message');
-        expect(res.body.success).toBe(true);
-    } else {
-        expect(res.status).not.toBe(StatusCodes.OK);
-        expect(res.body).toHaveProperty('success');
-        expect(res.body).toHaveProperty('message');
-        expect(res.body.success).toBe(false);
+    expect(res.body).toHaveProperty('success');
+    expect(res.body.success).toBe(success);
+    if (success) {
+        expect(res.body).toHaveProperty('data');
+    }
+    else {
+        expect(res.body).toHaveProperty('error');
     }
 }
 
@@ -39,28 +35,12 @@ describe('Environment', () => {
         app = App;
 
         const collections = await mongoose.connection.db.collections();
-
         for (let collection of collections) {
-            // note: collection.remove() has been depreceated.
             await collection.deleteMany({});
         }
     })
 
-    // beforeEach(async () => {
-    //     const collections = await mongoose.connection.db.collections();
-    //
-    //     for (let collection of collections) {
-    //         // note: collection.remove() has been depreceated.
-    //         await collection.deleteMany({});
-    //     }
-    // });
-
     afterAll((done) => {
-        // Closing the DB connection allows Jest to exit successfully.
-        // mongoose.connection.db.dropDatabase(() => {
-        //     mongoose.connection.close(done);
-        // })
-
         mongoose.connection.close()
         done()
     })
@@ -89,7 +69,7 @@ describe('Environment', () => {
         // console.log(res.body);
         // console.log("res.status: ", res.status);
 
-        checkEndpoint(res);
+        checkEndpoint(res, false);
 
         expect(res.status).toBe(StatusCodes.BAD_REQUEST);
         expect(res.body.success).toBe(false);
@@ -101,7 +81,7 @@ describe('Environment', () => {
             password: 'test',
             email: 'test',
         });
-        checkEndpoint(res);
+        checkEndpoint(res, false);
         expect(res.status).toBe(StatusCodes.BAD_REQUEST);
         expect(res.body.success).toBe(false);
     });
@@ -113,7 +93,7 @@ describe('Environment', () => {
             email: 'test',
             firstName: 'test',
         });
-        checkEndpoint(res);
+        checkEndpoint(res, false);
         expect(res.status).toBe(StatusCodes.BAD_REQUEST);
         expect(res.body.success).toBe(false);
     });
@@ -126,7 +106,7 @@ describe('Environment', () => {
             firstName: 'test',
             lastName: 'test',
         });
-        checkEndpoint(res);
+        checkEndpoint(res, false);
         expect(res.status).toBe(StatusCodes.BAD_REQUEST);
         expect(res.body.success).toBe(false);
     });
@@ -140,7 +120,7 @@ describe('Environment', () => {
             lastName: 'test',
             phone: 'test',
         });
-        checkEndpoint(res);
+        checkEndpoint(res, false);
         expect(res.status).toBe(StatusCodes.BAD_REQUEST);
         expect(res.body.success).toBe(false);
     });
@@ -159,6 +139,7 @@ describe('Environment', () => {
 
         // console.log(res.body);
         // checkEndpoint(res);
+        checkEndpoint(res, true);
         expect(res.status).toBe(StatusCodes.CREATED);
         expect(res.body).toHaveProperty('success');
         expect(res.body.success).toBe(true);
@@ -175,21 +156,11 @@ describe('Environment', () => {
             phoneNumber: 'test',
             roles: [],
         });
-        expect(res.type).toBe('application/json');
+        checkEndpoint(res, false);
         expect(res.status).toBe(StatusCodes.CONFLICT);
         expect(res.body.success).toBe(false);
     });
 
     // tests for login
-
-
-
-    //
-    // it('should return 404 Not Found', async () => {
-    //     const res = await request(app).get('/apix');
-    //     expect(res.status).toBe(StatusCodes.NOT_FOUND);
-    // });
-    //
-
 
 });

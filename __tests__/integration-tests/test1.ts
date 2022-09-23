@@ -18,16 +18,14 @@ describe('Environment', () => {
         const url = `mongodb://127.0.0.1/core_platform`; // ${new Date().getTime()}
         await mongoose.connect(url, { useNewUrlParser: true } as ConnectOptions)
         app = App;
+
+        const collections = await mongoose.connection.db.collections();
+        for (let collection of collections) {
+            await collection.deleteMany({});
+        }
     })
 
     afterAll(done => {
-        // Closing the DB connection allows Jest to exit successfully.
-        // drop the database
-        // mongoose.connection.db.dropDatabase(() => {
-        //     mongoose.connection.close(done);
-        // })
-
-        //
         mongoose.connection.close()
         done()
     })
@@ -50,7 +48,5 @@ describe('Environment', () => {
         const res = await request(app).get('/apix');
         expect(res.status).toBe(StatusCodes.NOT_FOUND);
     });
-
-
 
 });

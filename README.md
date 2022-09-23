@@ -19,11 +19,7 @@ Errors must be handled and returned as a JSON response. Example:
 ```json
 {
   "success": false,
-  "error": {
-    "code": 404,
-    "message": "Not Found",
-    "description": "The requested resource was not found."
-  }
+  "error": "Error message text here"
 }
 ```
 
