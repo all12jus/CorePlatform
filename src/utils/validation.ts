@@ -1,0 +1,1 @@
+// takes in array of optional, takes in array of required, takes in object to validate returns {errors: [], isValid: boolean}

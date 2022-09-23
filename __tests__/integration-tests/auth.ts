@@ -10,18 +10,50 @@ import {ConnectOptions} from "mongoose";
 
 // smoke test for checking if app exists
 
+
+// function to check endpoint is correctly structured
+function checkEndpoint(res: request.Response) {
+    expect(res.type).toBe('application/json');
+
+    if (res.status === StatusCodes.OK) {
+        expect(res.status).toBe(StatusCodes.OK);
+        expect(res.body).toHaveProperty('success');
+        expect(res.body).toHaveProperty('message');
+        expect(res.body.success).toBe(true);
+    } else {
+        expect(res.status).not.toBe(StatusCodes.OK);
+        expect(res.body).toHaveProperty('success');
+        expect(res.body).toHaveProperty('message');
+        expect(res.body.success).toBe(false);
+    }
+}
+
+
 describe('Environment', () => {
     let app: express.Application;
 
     // Connects to database called avengers
     beforeAll(async () => {
-        const url = `mongodb://127.0.0.1/${new Date().getTime()}`;
+        const url = `mongodb://127.0.0.1/core_platform`; // core_platform
         await mongoose.connect(url, { useNewUrlParser: true } as ConnectOptions)
         app = App;
     })
 
-    afterAll(done => {
+    beforeEach(async () => {
+        const collections = await mongoose.connection.db.collections();
+
+        for (let collection of collections) {
+            // note: collection.remove() has been depreceated.
+            await collection.deleteMany({});
+        }
+    });
+
+    afterAll((done) => {
         // Closing the DB connection allows Jest to exit successfully.
+        // mongoose.connection.db.dropDatabase(() => {
+        //     mongoose.connection.close(done);
+        // })
+
         mongoose.connection.close()
         done()
     })
@@ -49,10 +81,11 @@ describe('Environment', () => {
         });
         // console.log(res.body);
         // console.log("res.status: ", res.status);
-        // expect response to be in json format
-        expect(res.type).toBe('application/json');
-        expect(res.status).toBe(StatusCodes.BAD_REQUEST);
 
+        checkEndpoint(res);
+
+        expect(res.status).toBe(StatusCodes.BAD_REQUEST);
+        expect(res.body.success).toBe(false);
     });
 
     it('should return 400 Bad Request', async () => {
@@ -61,7 +94,9 @@ describe('Environment', () => {
             password: 'test',
             email: 'test',
         });
+        checkEndpoint(res);
         expect(res.status).toBe(StatusCodes.BAD_REQUEST);
+        expect(res.body.success).toBe(false);
     });
 
     it('should return 400 Bad Request', async () => {
@@ -71,7 +106,9 @@ describe('Environment', () => {
             email: 'test',
             firstName: 'test',
         });
+        checkEndpoint(res);
         expect(res.status).toBe(StatusCodes.BAD_REQUEST);
+        expect(res.body.success).toBe(false);
     });
 
     it('should return 400 Bad Request', async () => {
@@ -82,7 +119,9 @@ describe('Environment', () => {
             firstName: 'test',
             lastName: 'test',
         });
+        checkEndpoint(res);
         expect(res.status).toBe(StatusCodes.BAD_REQUEST);
+        expect(res.body.success).toBe(false);
     });
 
     it('should return 400 Bad Request', async () => {
@@ -94,22 +133,48 @@ describe('Environment', () => {
             lastName: 'test',
             phone: 'test',
         });
+        checkEndpoint(res);
         expect(res.status).toBe(StatusCodes.BAD_REQUEST);
+        expect(res.body.success).toBe(false);
     });
 
     // register success
-    // it('should return 201 Created', async () => {
-    //     const res = await request(app).post('/api/auth/register').send({
-    //         username: 'test',
-    //         password: 'test',
-    //         email: 'test',
-    //         firstName: 'test',
-    //         lastName: 'test',
-    //         phone: 'test',
-    //         role: [],
-    //     });
-    //     expect(res.status).toBe(StatusCodes.CREATED);
-    // });
+    it('should return 201 Created', async () => {
+        const res = await request(app).post('/api/auth/register').send({
+            username: 'test',
+            password: 'test',
+            email: 'test@test.com',
+            firstName: 'test',
+            lastName: 'test',
+            phoneNumber: 'test',
+            roles: [],
+        });
+
+        console.log(res.body);
+        // checkEndpoint(res);
+        expect(res.status).toBe(StatusCodes.CREATED);
+        expect(res.body).toHaveProperty('success');
+        expect(res.body.success).toBe(true);
+    });
+
+    // test when user already exists
+    it('should return 409 Conflict', async () => {
+        const res = await request(app).post('/api/auth/register').send({
+            username: 'test',
+            password: 'test',
+            email: 'test@test.com',
+            firstName: 'test',
+            lastName: 'test',
+            phoneNumber: 'test',
+            roles: [],
+        });
+        expect(res.type).toBe('application/json');
+        expect(res.status).toBe(StatusCodes.CONFLICT);
+        expect(res.body.success).toBe(false);
+    });
+
+    // tests for login
+
 
 
     //

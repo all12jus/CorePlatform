@@ -1,8 +1,13 @@
 // import express and create app instance with express() then export the app
+global.models = {};
+
+
 import * as express from 'express';
 import Auth from "./routes/auth";
 
 const app: express.Application = express();
+
+
 
 // GET: / route
 app.get('/', (req: express.Request, res: express.Response) => {

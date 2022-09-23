@@ -15,13 +15,19 @@ describe('Environment', () => {
 
     // Connects to database called avengers
     beforeAll(async () => {
-        const url = `mongodb://127.0.0.1/${new Date().getTime()}`;
+        const url = `mongodb://127.0.0.1/core_platform`; // ${new Date().getTime()}
         await mongoose.connect(url, { useNewUrlParser: true } as ConnectOptions)
         app = App;
     })
 
     afterAll(done => {
         // Closing the DB connection allows Jest to exit successfully.
+        // drop the database
+        // mongoose.connection.db.dropDatabase(() => {
+        //     mongoose.connection.close(done);
+        // })
+
+        //
         mongoose.connection.close()
         done()
     })
