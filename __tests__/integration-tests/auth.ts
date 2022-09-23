@@ -200,6 +200,16 @@ describe('Environment', () => {
         checkEndpoint(res, true);
         expect(res.status).toBe(StatusCodes.OK);
         expect(res.body.success).toBe(true);
+
+        // the token is stored in the cookie
+        // expect(res.header['set-cookie']).toBeDefined();
+
+
+
+        // // cookie has to have a jwt token
+        // expect(res.header['set-cookie'][0]).toMatch(/accessToken=.+; Path=\/; HttpOnly/);
+        // // cookie has to have a refresh token
+        // expect(res.header['set-cookie'][1]).toMatch(/refreshToken=.+; Path=\/; HttpOnly/);
     });
 
 });
